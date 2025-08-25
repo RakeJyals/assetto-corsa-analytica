@@ -7,6 +7,10 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLineEdit, Q
 
 
 class Window(QMainWindow):
+    def closeEvent(self, event):
+        # This is where to write the code for saving presets if autosave is desired
+        event.accept()
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Dashboard")
