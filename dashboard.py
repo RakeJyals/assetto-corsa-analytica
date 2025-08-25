@@ -11,6 +11,7 @@ class Window(QMainWindow):
         # This is where to write the code for saving presets if autosave is desired
         event.accept()
 
+    
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Dashboard")
@@ -52,7 +53,7 @@ class Window(QMainWindow):
         self.label_car_gap = QLabel("Gap to Next Car (s):", self)
         self.label_car_gap.setGeometry(260, 290, 200, 30)
         self.car_gap_entry = QLineEdit(self)
-        self.car_gap_entry.setGeometry(275, 320, 100, 30)
+        self.car_gap_entry.setGeometry(260, 320, 115, 30)
 
         
         # Safety Car
@@ -65,6 +66,7 @@ class Window(QMainWindow):
         self.fyc_button.setGeometry(275, 110, 100, 30)
         self.fyc_button.clicked.connect(self.calculate_fyc_strat)
 
+    
     def calculate_safety_car_strat(self):  # Refactor to support margin of error, FCY
         # Maximize liters refueled/tire change without time loss exceeding gap to next car
         try:
