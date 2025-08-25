@@ -54,6 +54,7 @@ class Window(QMainWindow):
         self.car_gap_entry = QLineEdit(self)
         self.car_gap_entry.setGeometry(275, 320, 100, 30)
 
+        
         # Safety Car
         self.safety_car_button = QPushButton("Safety Car", self)
         self.safety_car_button.setGeometry(275, 40, 100, 30)
