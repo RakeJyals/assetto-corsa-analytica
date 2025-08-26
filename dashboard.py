@@ -17,12 +17,13 @@ class Window(QMainWindow):
     
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Dashboard")
+        self.setWindowTitle("Assetto Corsa Analytica Dashboard")
         self.setGeometry(100, 100, 400, 370)
 
+        
         # Todo: margin of error module
         
-        # Fuel used per lap
+        # Fuel used per lap, unused for now
         self.label_fuel_usage_entry = QLabel("Fuel Used Per Lap:", self)
         self.label_fuel_usage_entry.setGeometry(20, 10, 200, 30)
         self.fuel_usage_entry = QLineEdit(self)
@@ -52,6 +53,15 @@ class Window(QMainWindow):
         self.overtake_entry = QLineEdit(self)
         self.overtake_entry.setGeometry(20, 320, 200, 30)
 
+        
+        # Timing Margin of Error
+        self.label_error_margin = QLabel("Margin of Error in Timing (s):", self)
+        self.label_error_margin.setGeometry(260, 210, 115, 40)
+        self.label_error_margin.setWordWrap(True)
+        self.error_margin = QLineEdit(self)
+        self.error_margin.setGeometry(260, 250, 115, 30)
+
+        
         # Gap to next car
         self.label_car_gap = QLabel("Gap to Next Car (s):", self)
         self.label_car_gap.setGeometry(260, 290, 200, 30)
@@ -70,11 +80,11 @@ class Window(QMainWindow):
         self.fyc_button.clicked.connect(self.calculate_fyc_strat)
 
     
-    def calculate_safety_car_strat(self):  # Refactor to support margin of error, FCY
+    def calculate_strat(self, base_timeloss_interaction):  # Refactor to support margin of error, FCY
         # Maximize liters refueled/tire change without time loss exceeding gap to next car
         try:
             gap = float(self.car_gap_entry.text())
-            base_timeloss = float(self.pit_stop_entry.text())
+            base_timeloss = float(self.pit_stop_entry.text()) * base_timeloss_interaction + float(self.error_margin.text())
             loss_per_liter = float(self.refueling_rate_entry.text())
             tire_change_loss = float(self.tire_swap_length_entry.text())
         except ValueError:
@@ -92,12 +102,18 @@ class Window(QMainWindow):
             if base_timeloss + tire_change_loss < gap:
                 strategy += f" and change tires"
         
-        QMessageBox.information(self, "Safety Car Strategy", strategy, QMessageBox.Ok)
+        QMessageBox.information(self, "Pit Stop Strategy", strategy, QMessageBox.Ok)
 
+    
+    def calculate_safety_car_strat(self):
+        self.calculate_strat(1)
 
     def calculate_fyc_strat(self):
-        # Maximize liters refueled/tire change without time loss exceeding gap to next car
-        pass
+        # In the future, we will need to measure the actual cost of pitting during FYC 
+        # and consider that here
+        # Instead of having the argument of calculate_strat be binary, 
+        # we can pass the base timeloss here
+        self.calculate_strat(0)
 
 
 
