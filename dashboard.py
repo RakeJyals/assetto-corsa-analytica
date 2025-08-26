@@ -5,6 +5,9 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLineEdit, Q
 # textbox.text() fetches current text in box, textbox.setText(str) changes text in text box
 # No need for QLineEdit.returnPressed.connect(func) for now
 
+# Future ideas:
+# Tracking others pit stops to predict if time can be gained by staying out
+
 
 class Window(QMainWindow):
     def closeEvent(self, event):
