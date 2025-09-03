@@ -23,11 +23,13 @@ class Window(QMainWindow):
         
         # Todo: margin of error module
         
+        '''
         # Fuel used per lap, unused for now
         self.label_fuel_usage_entry = QLabel("Fuel Used Per Lap:", self)
         self.label_fuel_usage_entry.setGeometry(20, 10, 200, 30)
         self.fuel_usage_entry = QLineEdit(self)
         self.fuel_usage_entry.setGeometry(20, 40, 200, 30)
+        '''
 
         # Refueling Rate
         self.label_refueling_rate_entry = QLabel("Seconds Per Liter Refueled:", self)
@@ -47,11 +49,13 @@ class Window(QMainWindow):
         self.pit_stop_entry = QLineEdit(self)
         self.pit_stop_entry.setGeometry(20, 250, 200, 30)
 
+        '''
         # Assumed Time Lost Per Overtake, unused for now
         self.label_overtake_entry = QLabel("Assumed Time Lost Per Overtake (s):", self)
         self.label_overtake_entry.setGeometry(20, 290, 210, 30)
         self.overtake_entry = QLineEdit(self)
         self.overtake_entry.setGeometry(20, 320, 200, 30)
+        '''
 
         
         # Timing Margin of Error
@@ -62,7 +66,7 @@ class Window(QMainWindow):
         self.error_margin.setGeometry(260, 250, 115, 30)
 
         
-        # Gap to next car
+        # Gap to next car behind
         self.label_car_gap = QLabel("Gap to Next Car (s):", self)
         self.label_car_gap.setGeometry(260, 290, 200, 30)
         self.car_gap_entry = QLineEdit(self)
