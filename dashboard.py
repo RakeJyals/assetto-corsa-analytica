@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLineEdit, Q
 
 # Future ideas:
 # Tracking others pit stops to predict if time can be gained by staying out
+# Integration with assetto hosting scraper
+# Integration with Assetto Corsa
 
 
 class Window(QMainWindow):
@@ -110,6 +112,9 @@ class Window(QMainWindow):
 
     
     def calculate_safety_car_strat(self):
+        # Recall that lapped cars will overtake the safety car
+        # Consequently when looking at gaps to cars behind, only consider unlapped cars if on lead lap,
+        # only lapped cars when lapped
         self.calculate_strat(1)
 
     def calculate_fyc_strat(self):
