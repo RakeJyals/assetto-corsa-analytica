@@ -6,9 +6,9 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLineEdit, Q
 # No need for QLineEdit.returnPressed.connect(func) for now
 
 # Future ideas:
-# Tracking others pit stops to predict if time can be gained by staying out
-# Integration with assetto hosting scraper
-# Integration with Assetto Corsa
+# Tracking others pit stops to predict overcut/undercut
+# Integration with assetto hosting scraper - live gaps to other drivers for pitstop strategies, catch up predictions, tracking others long stops?
+# Integration with Assetto Corsa - Live time, fuel state, tire wear for ensuring pitstop strategy is on track and recalculating if needed
 
 
 class Window(QMainWindow):
