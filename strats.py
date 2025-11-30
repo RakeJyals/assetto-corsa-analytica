@@ -14,7 +14,7 @@ class Race:  # While technically redundant, this reduces repetition of typing ou
 
 class Driver:  # Updating driver values updates them in cars
     def __init__(self, name, laptime, fuel_consumption):
-        self.name = name
+        self.name = name  # Is this necessary?
         self.average_lap_time = laptime
         self.average_fuel_consumption = fuel_consumption
 
@@ -52,18 +52,21 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
         if laps_per_stint:
             liters_to_refuel = laps_per_stint * driver.average_fuel_consumption
         else:
-            liters_to_refuel = self.fuel_tank_size - driver.average_fuel_consumption  # To get a lower bound on max_stint_length, we lower bound pitstop length by
+            liters_to_refuel = self.fuel_tank_size - driver.average_fuel_consumption 
+            # To get a lower bound on max_stint_length, we lower bound pitstop length by
             # assuming there is at least one lap of fuel left in the tank when coming in
 
         pitstop_length = self.base_pitstop_loss + max(self.tire_swap_time, self.refuel_rate * liters_to_refuel)
 
         if not laps_per_stint:
-            laps_per_stint = floor(self.fuel_tank_size / driver.average_fuel_consumption)  # TODO Can this be moved up to avoid having the previous if laps_per_stint block?
+            laps_per_stint = floor(self.fuel_tank_size / driver.average_fuel_consumption)  
+            # TODO Can this be moved up to avoid having the previous if laps_per_stint block?
     
         max_stint_length = driver.average_lap_time * laps_per_stint + pitstop_length
         # TODO: Parameter for max laps out? (tire strategy, may be better to save for new strat calculator)
 
-        stint_total = (effective_race_length + driver.average_lap_time) / max_stint_length  # Adding average_lap_time to numerator accounts for 6 hours + 1 lap
+        stint_total = (effective_race_length + driver.average_lap_time) / max_stint_length  
+        # Adding average_lap_time to numerator accounts for race time + 1 lap
         # We want an upper bound of this
         # PROBLEM! Does not account for the fact that long stops have free pit stop!!!  Long stops are removed from numerator but also need to be removed from denominator
         # To fix, max_stint_length should be a weighted average of max_stint_length
@@ -104,10 +107,12 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
 
         # Create 1D arrays
         long_stop_array = np.arange(self.long_stops + 1).reshape((1, -1))
-        pit_stops_array_base = np.arange(1, self.num_pitstops + 1).reshape((-1, 1))  # First element is before first pitstop (after first stint), last element is final pitstop
+        pit_stops_array_base = np.arange(1, self.num_pitstops + 1).reshape((-1, 1))
+        # First element is before first pitstop (after first stint), last element is final pitstop
 
         # Convert pit_stops_array to times that car should enter pits if there are no long stops
-        pit_stops_array = self.race_length - (pit_stops_array_base * stint_length) + pitstop_length  # Adding back pitstop_length is necessary since the pitstop hasn't been done on entry
+        pit_stops_array = self.race_length - (pit_stops_array_base * stint_length) + pitstop_length  
+        # Adding back pitstop_length is necessary since the pitstop hasn't been done on entry
         pit_stops_array = pit_stops_array.astype(np.int32)
 
         # Factor in long stops
@@ -117,10 +122,13 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
         pit_stops_matrix_seconds = (pit_stops_matrix % 60).astype(np.str_)
         pit_stops_matrix_minutes = ((pit_stops_matrix // 60) % 60).astype(np.str_)
         pit_stops_matrix_hours = (pit_stops_matrix // 3600).astype(np.str_)
-        pit_stops_matrix_string = pit_stops_matrix_hours + ":" + pit_stops_matrix_minutes + ":" + pit_stops_matrix_seconds  # Consider printing strings line by line
+        pit_stops_matrix_string = pit_stops_matrix_hours + ":" + pit_stops_matrix_minutes + ":" + pit_stops_matrix_seconds  
+        # Consider printing strings line by line
 
-        # Replace invalid elements of array with NaN (fewer long stops than stops completed and more long stops than pit stops remaining)
-        pit_stops_matrix_string[(pit_stops_array_base <= long_stop_array) | (pit_stops_array_base - 1 > (len(long_stop_array) + long_stop_array))] = "NaN"
+        # Replace invalid elements of array with NaN 
+        # (fewer long stops than stops completed and more long stops than pit stops remaining)
+        pit_stops_matrix_string[(pit_stops_array_base <= long_stop_array) | 
+                                (pit_stops_array_base - 1 > (len(long_stop_array) + long_stop_array))] = "NaN"
 
         return pit_stops_matrix_string
 
