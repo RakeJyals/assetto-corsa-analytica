@@ -11,11 +11,13 @@ class Race:  # While technically redundant, this reduces repetition of typing ou
         self.long_stop_count = long_stop_count
 
 
-class Driver:  # TODO see if updating driver values updates them in cars
+
+class Driver:  # Updating driver values updates them in cars
     def __init__(self, name, laptime, fuel_consumption):
         self.name = name
-        self.average_laptime = laptime
+        self.average_lap_time = laptime
         self.average_fuel_consumption = fuel_consumption
+
 
 
 class Car:  # TODO driver data (should this be a method?), pitstop time
@@ -33,8 +35,10 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
 
         self.num_pitstops = None
 
+
     def add_driver(self, driver):
         self.drivers.append(driver)
+
         return
 
 
@@ -82,6 +86,7 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
         obj = lambda laps_per_stint: self.estimate_stint_length(driver.average_lap_time, 
                                                                 driver.average_fuel_consumption, 
                                                                 laps_per_stint)[0] - stint_total
+        # Objective currently tries to calculate minimum fuel needed per stint to complete all stints
 
         # Calculate optimal laps per stint
         optimal_laps_per_stint = brentq(obj, 1, floor(self.fuel_tank_size / driver.average_fuel_consumption))
@@ -89,8 +94,9 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
         # Return liters required to do optimal laps
         return floor(optimal_laps_per_stint), ceil(driver.average_fuel_consumption * optimal_laps_per_stint)
 
+
     def pit_time_matrix(self):
-    # TODO: optional argument for start time
+    # TODO: optional argument for start time, pit window opens/closes versions
 
         laps_per_stint, liters_to_refuel = self.laps_and_fuel_per_stint()
         _, stint_length, _ = self.estimate_stint_length(laps_per_stint = laps_per_stint)
@@ -122,6 +128,7 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
 class GT3(Car):
     def __init__(self, race, base_pitstop_loss):
         super().__init__(race, base_pitstop_loss, fuel_tank_size=100, refuel_rate=0.353, tire_swap_time=30)
+
 
 class LMP2(Car):
     def __init__(self, race, base_pitstop_loss):
