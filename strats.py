@@ -19,7 +19,7 @@ class Driver:  # TODO see if updating driver values updates them in cars
 
 
 class Car:  # TODO driver data (should this be a method?), pitstop time
-    def __init__(self, race, fuel_tank_size, refuel_rate, tire_swap_time, base_pitstop_loss):
+    def __init__(self, race, base_pitstop_loss, fuel_tank_size, refuel_rate, tire_swap_time):
         self.fuel_tank_size = fuel_tank_size
         self.refuel_rate = refuel_rate
         self.tire_swap_time = tire_swap_time
@@ -31,14 +31,14 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
 
         self.drivers = []
 
-        self.num_pitstops = floor(self.estimate_stint_length()[0])
+        self.num_pitstops = None
 
     def add_driver(self, driver):
         self.drivers.append(driver)
         return
 
 
-    def estimate_stint_length(self, driver = None, laps_per_stint = None):  # Need to introduce average lap times/fuel consumption
+    def estimate_stint_length(self, driver = None, laps_per_stint = None):
         if not driver:
             driver = self.drivers[0]
         
@@ -120,9 +120,9 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
 
 
 class GT3(Car):
-    def __init__(self, race):
-        super().__init__(race, fuel_tank_size=100, refuel_rate=0.353, tire_swap_time=30)
+    def __init__(self, race, base_pitstop_loss):
+        super().__init__(race, base_pitstop_loss, fuel_tank_size=100, refuel_rate=0.353, tire_swap_time=30)
 
 class LMP2(Car):
-    def __init__(self, race):
-        super().__init__(race, fuel_tank_size = 75, refuel_rate = 0.6, tire_swap_time = 10)
+    def __init__(self, race, base_pitstop_loss):
+        super().__init__(race, base_pitstop_loss, fuel_tank_size = 75, refuel_rate = 0.6, tire_swap_time = 10)
