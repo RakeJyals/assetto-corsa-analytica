@@ -12,11 +12,41 @@ class Race:  # While technically redundant, this reduces repetition of typing ou
 
 
 
-class Driver:  # Updating driver values updates them in cars
+class Driver:  # Updating driver values updates them in cars. Note that stats are specific to car type
     def __init__(self, name, laptime, fuel_consumption):
         self.name = name
         self.average_lap_time = laptime
         self.average_fuel_consumption = fuel_consumption
+
+
+
+class Stint:
+    def __init__(self, driver, car, prev = None, next = None):
+        # TODO edge case for long stops?
+        self.__driver = driver
+        self.__car = car
+        self.__max_laps = floor(car.fuel_tank_size / driver.average_fuel_consumption)  # This assumes fuel tank is full from previous stint
+        self.__laps = self.__max_laps
+        self.prev = prev
+        prev.next = self
+        self.next = next
+        
+        self.update_length()
+
+
+    def update_length(self):
+        length = self.__laps * self.__driver.average_lap_time
+        if self.prev != None:  # Including refeuling at the beginning of the stint lines up timings with pit entry timer, 
+                               # removes need to reference next stint as well
+            liters_to_refuel = self.__laps * self.__driver.average_fuel_consumption
+            length += self.__car.base_pitstop_loss + max(self.__car.tire_swap_time, self.__car.refuel_rate * liters_to_refuel)
+        
+        else:
+            pass  # TODO formation lap stats, parameters like starting fuel?
+
+        self.length = length
+        if self.next:
+            next.update_length()
 
 
 
@@ -27,23 +57,21 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
         self.tire_swap_time = tire_swap_time
         self.base_pitstop_loss = base_pitstop_loss
 
-        self.race_length = race.length
+        self.race_length = race.length  # Note that this notation makes race attributes immutable
         self.long_stop_time = race.long_stop_time
         self.long_stop_count = race.long_stop_count
 
-        self.drivers = []
-        self.stint_lengths = []
-
-        self.num_pitstops = None
+        self.stints = []  # Note that each stint behaves like a link in a linked list too. Keeping 
+        self.num_pitstops = None  # Redundant, equal to len(self.stints) - 1
 
 
-    def add_driver(self, driver):
+    def add_driver(self, driver):  # TODO revise method for arbitrary location insertion
         self.drivers.append(driver)
 
         return
 
 
-    def estimate_stint_length(self, driver = None, laps_per_stint = None):  # TODO refactor for sequence of drivers
+    def estimate_stint_length(self, driver = None, laps_per_stint = None):  # TODO refactor for sequence of drivers? This method is most likely defunct and should be removed
         '''
         Method for determining the number of stints required to finish the race, along with how long the stints will last and the margin to running out of fuel.
         The estimated number of stints is a float number, eg. 1.2 stints means the driver should be 20% done with stint number 2 when the race ends.
