@@ -14,7 +14,7 @@ class Race:  # While technically redundant, this reduces repetition of typing ou
 
 class Driver:  # Updating driver values updates them in cars. Note that stats are specific to car type
     def __init__(self, name, laptime, fuel_consumption):
-        self.name = name  # Is this necessary?
+        self.name = name  # Currently unused but should be relevant when generating plan reports
         self.average_lap_time = laptime
         self.average_fuel_consumption = fuel_consumption
 
@@ -27,9 +27,15 @@ class Stint:
         self.__car = car
         self.__max_laps = floor(car.fuel_tank_size / driver.average_fuel_consumption)        
         self.__laps = self.__max_laps
+        
         self.prev = prev
-        prev.next = self
         self.next = next
+
+        if prev:
+            prev.next = self
+        if next:
+            next.prev = self
+
         
         self.update_length()
 
@@ -58,16 +64,28 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
         self.refuel_rate = refuel_rate
         self.tire_swap_time = tire_swap_time
         self.base_pitstop_loss = base_pitstop_loss
-
         self.race = race
 
         self.stints = []  # Note that each stint behaves like a link in a linked list too. Keeping 
         self.num_pitstops = None  # Redundant, equal to len(self.stints) - 1
 
 
-    def add_driver(self, driver):  # TODO revise method for arbitrary location insertion
-        self.drivers.append(driver)
+    def add_stint(self, driver, index = -1):
+        if not isinstance(index, int):
+            raise TypeError("Index must be an integer")
+        if index >= len(self.stints):
+            next = None
+        else:
+            next = self.stints[index]
+        if index <= 0 or len(self.stints) == 0:
+            prev = None
+        else:
+            prev = self.stints[index - 1]
+        
+        stint = Stint(driver, self, prev, next)
+        self.stints.insert(index, stint)  # Note that for large index, stint gets inserted at front/back of list
 
+        stint.update_length()
         return
 
 
