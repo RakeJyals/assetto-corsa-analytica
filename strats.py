@@ -59,9 +59,7 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
         self.tire_swap_time = tire_swap_time
         self.base_pitstop_loss = base_pitstop_loss
 
-        self.race_length = race.length  # Note that this notation makes race attributes immutable
-        self.long_stop_time = race.long_stop_time
-        self.long_stop_count = race.long_stop_count
+        self.race = race
 
         self.stints = []  # Note that each stint behaves like a link in a linked list too. Keeping 
         self.num_pitstops = None  # Redundant, equal to len(self.stints) - 1
@@ -90,8 +88,8 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
         if not driver:
             driver = self.drivers[0]
         
-        total_long_stop_time = self.long_stop_count * self.long_stop_time
-        effective_race_length = self.race_length - total_long_stop_time
+        total_long_stop_time = self.race.long_stop_count * self.race.long_stop_time
+        effective_race_length = self.race.length - total_long_stop_time
 
         if laps_per_stint:
             liters_to_refuel = laps_per_stint * driver.average_fuel_consumption
@@ -116,7 +114,7 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
         # Long stops are removed from numerator but also need to be removed from denominator
         # To fix, max_stint_length should be a weighted average of max_stint_length
         average_stint_length = driver.average_lap_time * laps_per_stint + \
-            ((stint_total - self.long_stop_count) / stint_total) * pitstop_length
+            ((stint_total - self.race.long_stop_count) / stint_total) * pitstop_length
         new_stint_total = (effective_race_length + driver.average_lap_time) / average_stint_length  
         # TODO make this a loop that breaks once it converges well enough
 
@@ -132,6 +130,8 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
 
     def laps_and_fuel_per_stint(self, driver = None):  
         # TODO refactor for sequence of drivers, different refuelings between short/long stops
+        
+        # Has to be done this way because self.drivers[0] cannot be set as default argument in function declaration
         if not driver:
             driver = self.drivers[0]
         
@@ -156,17 +156,17 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
         pitstop_length = self.base_pitstop_loss + max(self.tire_swap_time, self.refuel_rate * liters_to_refuel)
 
         # Create 1D arrays
-        long_stop_array = np.arange(self.long_stops + 1).reshape((1, -1))
+        long_stop_array = np.arange(self.race.long_stop_count + 1).reshape((1, -1))
         pit_stops_array_base = np.arange(1, self.num_pitstops + 1).reshape((-1, 1))
         # First element is before first pitstop (after first stint), last element is final pitstop
 
         # Convert pit_stops_array to times that car should enter pits if there are no long stops
-        pit_stops_array = self.race_length - (pit_stops_array_base * stint_length) + pitstop_length  
+        pit_stops_array = self.race.length - (pit_stops_array_base * stint_length) + pitstop_length  
         # Adding back pitstop_length is necessary since the pitstop hasn't been done on entry
         pit_stops_array = pit_stops_array.astype(np.int32)
 
         # Factor in long stops
-        pit_stops_matrix = (pit_stops_array - self.long_stop_time * long_stop_array)
+        pit_stops_matrix = (pit_stops_array - self.race.long_stop_time * long_stop_array)
 
         # Convert array to timedelta
         pit_stops_matrix_seconds = (pit_stops_matrix % 60).astype(np.str_)
