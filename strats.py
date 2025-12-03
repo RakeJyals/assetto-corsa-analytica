@@ -25,7 +25,7 @@ class Stint:
         # TODO edge case for long stops?
         self.__driver = driver
         self.__car = car
-        self.__max_laps = floor(car.fuel_tank_size / driver.average_fuel_consumption)  # This assumes fuel tank is full from previous stint
+        self.__max_laps = floor(car.fuel_tank_size / driver.average_fuel_consumption)        
         self.__laps = self.__max_laps
         self.prev = prev
         prev.next = self
@@ -39,6 +39,8 @@ class Stint:
         if self.prev != None:  # Including refeuling at the beginning of the stint lines up timings with pit entry timer, 
                                # removes need to reference next stint as well
             liters_to_refuel = self.__laps * self.__driver.average_fuel_consumption
+            # This assumes that fuel tank is empty upon pit entry
+
             length += self.__car.base_pitstop_loss + max(self.__car.tire_swap_time, self.__car.refuel_rate * liters_to_refuel)
         
         else:
@@ -71,10 +73,13 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
         return
 
 
-    def estimate_stint_length(self, driver = None, laps_per_stint = None):  # TODO refactor for sequence of drivers? This method is most likely defunct and should be removed
+    def estimate_stint_length(self, driver = None, laps_per_stint = None):  
+        # TODO refactor for sequence of drivers? This method is most likely defunct and should be removed
         '''
-        Method for determining the number of stints required to finish the race, along with how long the stints will last and the margin to running out of fuel.
-        The estimated number of stints is a float number, eg. 1.2 stints means the driver should be 20% done with stint number 2 when the race ends.
+        Method for determining the number of stints required to finish the race, along with how long the stints will last 
+        and the margin to running out of fuel.
+        The estimated number of stints is a float number, eg. 1.2 stints means the driver should be 20% done with stint 
+        number 2 when the race ends.
         These estimates assume that the driver completes the same specified number of laps each stint.
         Max stint length is in seconds and includes time spent on pitstop.
 
@@ -107,20 +112,26 @@ class Car:  # TODO driver data (should this be a method?), pitstop time
         stint_total = (effective_race_length + driver.average_lap_time) / max_stint_length  
         # Adding average_lap_time to numerator accounts for race time + 1 lap
         # We want an upper bound of this
-        # PROBLEM! Does not account for the fact that long stops have free pit stop!!!  Long stops are removed from numerator but also need to be removed from denominator
+        # PROBLEM! Does not account for the fact that long stops have free pit stop!!!  
+        # Long stops are removed from numerator but also need to be removed from denominator
         # To fix, max_stint_length should be a weighted average of max_stint_length
-        average_stint_length = driver.average_lap_time * laps_per_stint + ((stint_total - self.long_stop_count) / stint_total) * pitstop_length
-        new_stint_total = (effective_race_length + driver.average_lap_time) / average_stint_length  # TODO make this a loop that breaks once it converges well enough
+        average_stint_length = driver.average_lap_time * laps_per_stint + \
+            ((stint_total - self.long_stop_count) / stint_total) * pitstop_length
+        new_stint_total = (effective_race_length + driver.average_lap_time) / average_stint_length  
+        # TODO make this a loop that breaks once it converges well enough
 
-        # pitstop_length is the sum of the time lost between the inlap and outlap. The first stint does not have an outlap but rather a formation lap (which is longer than an outlap),
-        # the final stint has an outlap but not an inlap. Therefore right now stint_total is overestimated by outlap_differential / max_stint_length
+        # pitstop_length is the sum of the time lost between the inlap and outlap. 
+        # The first stint does not have an outlap but rather a formation lap (which is longer than an outlap),
+        # the final stint has an outlap but not an inlap. Therefore right now stint_total is 
+        # overestimated by outlap_differential / max_stint_length
 
         seconds_margin = (round(new_stint_total) - new_stint_total) * average_stint_length
     
         return new_stint_total, max_stint_length, seconds_margin  # Separate function for max_stint_length?
 
 
-    def laps_and_fuel_per_stint(self, driver = None):  # TODO refactor for sequence of drivers, different refuelings between short/long stops
+    def laps_and_fuel_per_stint(self, driver = None):  
+        # TODO refactor for sequence of drivers, different refuelings between short/long stops
         if not driver:
             driver = self.drivers[0]
         
